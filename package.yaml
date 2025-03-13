@@ -25,6 +25,7 @@ dependencies:
 - bytestring
 - aeson
 - directory
+- filepath
 
 ghc-options:
 - -Wall
@@ -53,6 +54,9 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -O2
+    - -optc-O3
+    - -funbox-strict-fields
     dependencies:
     - hyprmonad
 

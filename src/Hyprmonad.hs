@@ -5,9 +5,10 @@ module Hyprmonad
 import HyprLib.Socket
 import HyprLib.Models
 import Data.Aeson
-import Data.List
+import Data.List (isSuffixOf)
 import System.Environment
-import System.Directory (createDirectoryIfMissing, getDirectoryContents)
+import System.Directory (createDirectoryIfMissing, listDirectory)
+import System.FilePath
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
 
@@ -49,6 +50,6 @@ listProfiles = do
     -- list all profiles in the data directory with the .json stripped
     userHome <- getEnv "HOME"
     let dataDirectory = userHome <> "/.local/share/hyprmonad/"
-    files <- getDirectoryContents dataDirectory
-    let stripped = [reverse (drop 5 (reverse f)) | f <- files, isSuffixOf ".json" f]
+    files <- listDirectory dataDirectory
+    let stripped = [takeBaseName f | f <- files]
     mapM_ putStrLn stripped
