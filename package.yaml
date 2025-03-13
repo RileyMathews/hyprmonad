@@ -39,9 +39,12 @@ ghc-options:
 - -Wredundant-constraints
 - -fwrite-ide-info
 - -hiedir .hiefiles
-- -fdefer-type-errors
-- -Werror=deferred-type-errors
-- -fno-defer-typed-holes
+- -rtsopts=none
+- -with-rtsopts=-A4m
+- -O2
+- -optc-O3
+- -funbox-strict-fields
+- -optl-s
 
 library:
   source-dirs: src
@@ -50,13 +53,6 @@ executables:
   hyprmonad-exe:
     main:                Main.hs
     source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    - -O2
-    - -optc-O3
-    - -funbox-strict-fields
     dependencies:
     - hyprmonad
 
@@ -64,9 +60,5 @@ tests:
   hyprmonad-test:
     main:                Spec.hs
     source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
     dependencies:
     - hyprmonad

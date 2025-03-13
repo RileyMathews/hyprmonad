@@ -34,7 +34,7 @@ library
       Paths_hyprmonad
   hs-source-dirs:
       src
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fwrite-ide-info -hiedir .hiefiles -fdefer-type-errors -Werror=deferred-type-errors -fno-defer-typed-holes
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fwrite-ide-info -hiedir .hiefiles -rtsopts=none -with-rtsopts=-A4m -O2 -optc-O3 -funbox-strict-fields -optl-s
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -52,7 +52,7 @@ executable hyprmonad-exe
       Paths_hyprmonad
   hs-source-dirs:
       app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fwrite-ide-info -hiedir .hiefiles -fdefer-type-errors -Werror=deferred-type-errors -fno-defer-typed-holes -threaded -rtsopts -with-rtsopts=-N -O2 -optc-O3 -funbox-strict-fields
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fwrite-ide-info -hiedir .hiefiles -rtsopts=none -with-rtsopts=-A4m -O2 -optc-O3 -funbox-strict-fields -optl-s
   build-depends:
       aeson
     , base >=4.7 && <5
@@ -72,7 +72,7 @@ test-suite hyprmonad-test
       Paths_hyprmonad
   hs-source-dirs:
       test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fwrite-ide-info -hiedir .hiefiles -fdefer-type-errors -Werror=deferred-type-errors -fno-defer-typed-holes -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fwrite-ide-info -hiedir .hiefiles -rtsopts=none -with-rtsopts=-A4m -O2 -optc-O3 -funbox-strict-fields -optl-s
   build-depends:
       aeson
     , base >=4.7 && <5
