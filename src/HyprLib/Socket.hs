@@ -2,7 +2,8 @@ module HyprLib.Socket where
 
 import System.Environment (getEnv)
 import Network.Socket
-import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BSC
 import Network.Socket.ByteString (recv, sendAll)
 
 getHyprSocketPath :: IO FilePath
@@ -10,15 +11,16 @@ getHyprSocketPath = do
     instanceSig <- getEnv "HYPRLAND_INSTANCE_SIGNATURE"
     return $ "/run/user/1000/hypr/" ++ instanceSig ++ "/.socket.sock"
 
-getHyprSocket :: FilePath -> IO Socket
-getHyprSocket filePath = do
+getHyprSocket :: IO Socket
+getHyprSocket = do
     sock <- socket AF_UNIX Stream defaultProtocol
+    filePath <- getHyprSocketPath
     connect sock (SockAddrUnix filePath)
     return sock
 
 sendHyprCommand :: Socket -> String -> IO BS.ByteString
 sendHyprCommand sock command = do
-    sendAll sock (BS.pack command)
+    sendAll sock (BSC.pack command)
     response <- getHyprResponse sock
     return response
 
@@ -34,5 +36,3 @@ getHyprResponse = recvResponseWithAccum BS.empty
                 then pure accum
                 else recvResponseWithAccum (BS.append accum chunk) sock
 
-debugHyprResponse :: BS.ByteString -> IO ()
-debugHyprResponse text = BS.putStrLn text
