@@ -5,8 +5,9 @@ module Hyprmonad
 import HyprLib.Socket
 import HyprLib.Models
 import Data.Aeson
+import Data.List
 import System.Environment
-import System.Directory (createDirectoryIfMissing)
+import System.Directory (createDirectoryIfMissing, getDirectoryContents)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BL
 
@@ -23,15 +24,10 @@ app :: IO ()
 app = do
     args <- getArgs
     case args of
-        ["list"] -> print "listing profiles"
+        ["list"] -> listProfiles
         ["save", profile] -> saveProfile profile
         ["load", profile] -> print $ "loading " <> profile
         _ -> print "unknown command given"
-    print args
-    sock <- getHyprSocket
-    resp <- sendHyprCommand sock "j/monitors"
-    let mMonitors = decodeStrict resp :: Maybe [Monitor]
-    print mMonitors
 
 encodeStrict :: ToJSON a => a -> BS.ByteString
 encodeStrict = BL.toStrict . encode
@@ -47,3 +43,13 @@ saveProfile profileName = do
             -- save json encoded monitors to the file path
             BS.writeFile profilePath $ encodeStrict monitors
     pure ()
+
+listProfiles :: IO ()
+listProfiles = do
+    -- list all profiles in the data directory with the .json stripped
+    userHome <- getEnv "HOME"
+    let dataDirectory = userHome <> "/.local/share/hyprmonad/"
+    files <- getDirectoryContents dataDirectory
+    let filtered = filter (\f -> isSuffixOf ".json" f) files
+    let stripped = map (reverse . drop 5 . reverse) filtered
+    print stripped
