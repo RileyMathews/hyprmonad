@@ -50,6 +50,5 @@ listProfiles = do
     userHome <- getEnv "HOME"
     let dataDirectory = userHome <> "/.local/share/hyprmonad/"
     files <- getDirectoryContents dataDirectory
-    let filtered = filter (\f -> isSuffixOf ".json" f) files
-    let stripped = map (reverse . drop 5 . reverse) filtered
-    print stripped
+    let stripped = [reverse (drop 5 (reverse f)) | f <- files, isSuffixOf ".json" f]
+    mapM_ putStrLn stripped
