@@ -4,8 +4,9 @@ module Hyprmonad
 
 import HyprLib.Socket
 import HyprLib.Models
+import Network.Socket
+import Control.Monad
 import Data.Aeson
-import Data.List (isSuffixOf)
 import System.Environment
 import System.Directory (createDirectoryIfMissing, listDirectory)
 import System.FilePath
@@ -27,7 +28,7 @@ app = do
     case args of
         ["list"] -> listProfiles
         ["save", profile] -> saveProfile profile
-        ["load", profile] -> print $ "loading " <> profile
+        ["load", profile] -> loadProfile profile
         _ -> print "unknown command given"
 
 encodeStrict :: ToJSON a => a -> BS.ByteString
@@ -53,3 +54,20 @@ listProfiles = do
     files <- listDirectory dataDirectory
     let stripped = [takeBaseName f | f <- files]
     mapM_ putStrLn stripped
+
+dispatchKeywordCommand :: Monitor -> IO ()
+dispatchKeywordCommand monitor = do
+    sock <- getHyprSocket
+    let command = keywordRestoreCommand monitor
+    _ <- sendHyprCommand sock command 
+    pure ()
+
+loadProfile :: String -> IO ()
+loadProfile profileName = do
+    profilePath <- getProfilePath profileName
+    fileContents <- BS.readFile profilePath
+    let mMonitors = decodeStrict fileContents :: Maybe [Monitor]
+    case mMonitors of
+        Nothing -> putStrLn "Failed to fetch monitors"
+        Just monitors -> forM_ monitors dispatchKeywordCommand
+    pure ()
