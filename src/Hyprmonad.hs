@@ -4,7 +4,6 @@ module Hyprmonad
 
 import HyprLib.Socket
 import HyprLib.Models
-import Network.Socket
 import Control.Monad
 import Data.Aeson
 import System.Environment
@@ -36,14 +35,10 @@ encodeStrict = BL.toStrict . encode
 
 saveProfile :: String -> IO ()
 saveProfile profileName = do
-    sock <- getHyprSocket
-    mMonitors <- (decodeStrict :: BS.ByteString -> Maybe [Monitor]) <$> sendHyprCommand sock "j/monitors"
-    case mMonitors of
-        Nothing -> print "error fetching monitor configuration"
-        Just monitors -> do
-            profilePath <- getProfilePath profileName
-            -- save json encoded monitors to the file path
-            BS.writeFile profilePath $ encodeStrict monitors
+    monitors <- getConnectedMonitors
+    profilePath <- getProfilePath profileName
+    -- save json encoded monitors to the file path
+    BS.writeFile profilePath $ encodeStrict monitors
     pure ()
 
 listProfiles :: IO ()
@@ -57,10 +52,22 @@ listProfiles = do
 
 dispatchKeywordCommand :: Monitor -> IO ()
 dispatchKeywordCommand monitor = do
-    sock <- getHyprSocket
     let command = keywordRestoreCommand monitor
-    _ <- sendHyprCommand sock command 
+    _ <- sendHyprCommand command 
     pure ()
+
+dispatchDisableCommand :: Monitor -> IO ()
+dispatchDisableCommand monitor = do
+    let command = keywordDisableCommand monitor
+    _ <- sendHyprCommand command
+    pure ()
+
+getConnectedMonitors :: IO [Monitor]
+getConnectedMonitors = do
+    mMonitors <- (decodeStrict :: BS.ByteString -> Maybe [Monitor]) <$> sendHyprCommand "j/monitors"
+    case mMonitors of
+        Nothing -> error "Failed to fetch monitors"
+        Just monitors -> pure monitors
 
 loadProfile :: String -> IO ()
 loadProfile profileName = do
@@ -69,5 +76,9 @@ loadProfile profileName = do
     let mMonitors = decodeStrict fileContents :: Maybe [Monitor]
     case mMonitors of
         Nothing -> putStrLn "Failed to fetch monitors"
-        Just monitors -> forM_ monitors dispatchKeywordCommand
+        Just profileMonitors -> do
+            connectedMonitors <- getConnectedMonitors
+            let missingMonitors = filter (\m -> not $ elem m profileMonitors) connectedMonitors
+            forM_ profileMonitors dispatchKeywordCommand
+            forM_ missingMonitors dispatchDisableCommand
     pure ()

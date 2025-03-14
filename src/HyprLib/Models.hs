@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric  #-}
 {-# LANGUAGE DeriveAnyClass #-}
-module HyprLib.Models (Monitor, keywordRestoreCommand) where
+module HyprLib.Models (Monitor, keywordRestoreCommand, keywordDisableCommand) where
 
 import Data.Aeson
 import GHC.Generics
@@ -17,10 +17,16 @@ data Monitor = Monitor
     }
     deriving (Show, Generic, ToJSON, FromJSON)
 
+instance Eq Monitor where
+    (==) monitor1 monitor2 = HyprLib.Models.id monitor1 == HyprLib.Models.id monitor2
+
 keywordRestoreCommand :: Monitor -> String
 keywordRestoreCommand monitor = do
     let commandPieces = [name monitor, monitorDimensions monitor, monitorPosition monitor, show $ scale monitor]
     "keyword monitor " ++ intercalate "," commandPieces
+
+keywordDisableCommand :: Monitor -> String
+keywordDisableCommand monitor = "keyword monitor " ++ name monitor ++ ",disable"
 
 monitorDimensions :: Monitor -> String
 monitorDimensions monitor = (show $ width monitor) ++ "x" ++ (show $ height monitor)

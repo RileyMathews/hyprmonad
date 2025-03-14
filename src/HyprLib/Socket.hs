@@ -1,4 +1,4 @@
-module HyprLib.Socket where
+module HyprLib.Socket (sendHyprCommand) where
 
 import System.Environment (getEnv)
 import Network.Socket
@@ -18,10 +18,12 @@ getHyprSocket = do
     connect sock (SockAddrUnix filePath)
     return sock
 
-sendHyprCommand :: Socket -> String -> IO BS.ByteString
-sendHyprCommand sock command = do
+sendHyprCommand :: String -> IO BS.ByteString
+sendHyprCommand command = do
+    sock <- getHyprSocket
     sendAll sock (BSC.pack command)
     response <- getHyprResponse sock
+    close sock
     return response
 
 getHyprResponse :: Socket -> IO BS.ByteString
