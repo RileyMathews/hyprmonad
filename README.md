@@ -13,3 +13,11 @@ hyprmonad save profileName # saves the current monitor layout as profileName
 hyprmonad load profileName # loads the profile
 hyprmonad list # list profiles
 ```
+
+### rofi/dmenu script
+You can create a slim script like so to pull up a profile picker
+``` bash
+#! /bin/bash
+chosen=$(hyprmonad list | rofi -dmenu -i)
+hyprmonad load $chosen
+```
