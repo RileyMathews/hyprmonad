@@ -47,8 +47,12 @@ listProfiles = do
     userHome <- getEnv "HOME"
     let dataDirectory = userHome <> "/.local/share/hyprmonad/"
     files <- listDirectory dataDirectory
-    let stripped = [takeBaseName f | f <- files]
+    let stripped = files >>= pure . takeBaseName
     mapM_ putStrLn stripped
+
+nlistProfiles :: IO ()
+nlistProfiles =
+    getEnv "HOME" >>= listDirectory . (<> "/.local/share/hyprmonad/") >>= (mapM_ putStrLn . map takeBaseName)
 
 dispatchKeywordCommand :: Monitor -> IO ()
 dispatchKeywordCommand monitor = do
@@ -62,6 +66,9 @@ dispatchDisableCommand monitor = do
     _ <- sendHyprCommand command
     pure ()
 
+ndispatchDisableCommand :: Monitor -> IO ()
+ndispatchDisableCommand monitor = sendHyprCommand (keywordDisableCommand monitor) >> pure ()
+
 getConnectedMonitors :: IO [Monitor]
 getConnectedMonitors = do
     mMonitors <- (decodeStrict :: BS.ByteString -> Maybe [Monitor]) <$> sendHyprCommand "j/monitors"
@@ -71,8 +78,7 @@ getConnectedMonitors = do
 
 loadProfile :: String -> IO ()
 loadProfile profileName = do
-    profilePath <- getProfilePath profileName
-    fileContents <- BS.readFile profilePath
+    fileContents <- getProfilePath profileName >>= BS.readFile
     let mMonitors = decodeStrict fileContents :: Maybe [Monitor]
     case mMonitors of
         Nothing -> putStrLn "Failed to fetch monitors"
@@ -82,3 +88,4 @@ loadProfile profileName = do
             forM_ profileMonitors dispatchKeywordCommand
             forM_ missingMonitors dispatchDisableCommand
     pure ()
+
