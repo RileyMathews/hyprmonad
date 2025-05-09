@@ -50,9 +50,9 @@ listProfiles = do
     let stripped = takeBaseName <$> files
     mapM_ putStrLn stripped
 
-nlistProfiles :: IO ()
-nlistProfiles =
-    getEnv "HOME" >>= listDirectory . (<> "/.local/share/hyprmonad/") >>= (mapM_ putStrLn . map takeBaseName)
+-- nlistProfiles :: IO ()
+-- nlistProfiles =
+--     getEnv "HOME" >>= listDirectory . (<> "/.local/share/hyprmonad/") >>= (mapM_ putStrLn . map takeBaseName)
 
 dispatchKeywordCommand :: Monitor -> IO ()
 dispatchKeywordCommand monitor = do
@@ -66,8 +66,8 @@ dispatchDisableCommand monitor = do
     _ <- sendHyprCommand command
     pure ()
 
-ndispatchDisableCommand :: Monitor -> IO ()
-ndispatchDisableCommand monitor = sendHyprCommand (keywordDisableCommand monitor) >> pure ()
+-- ndispatchDisableCommand :: Monitor -> IO ()
+-- ndispatchDisableCommand monitor = sendHyprCommand (keywordDisableCommand monitor) >> pure ()
 
 getConnectedMonitors :: IO [Monitor]
 getConnectedMonitors = do
