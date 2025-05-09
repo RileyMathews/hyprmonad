@@ -47,7 +47,7 @@ listProfiles = do
     userHome <- getEnv "HOME"
     let dataDirectory = userHome <> "/.local/share/hyprmonad/"
     files <- listDirectory dataDirectory
-    let stripped = files >>= pure . takeBaseName
+    let stripped = takeBaseName <$> files
     mapM_ putStrLn stripped
 
 nlistProfiles :: IO ()
